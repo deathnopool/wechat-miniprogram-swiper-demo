@@ -8,7 +8,7 @@ Page({
   data: {
     list: new Array(10).fill(1),
     current: 0,
-    duration: 600,
+    duration: 500,
   },
   onLoad() {
     

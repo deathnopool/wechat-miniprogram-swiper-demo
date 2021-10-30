@@ -38,9 +38,10 @@
         "transition-duration": dataset.duration + "ms",
       });
       var moveOffset = Math.abs(rect.left-origin.left);
-      if (moveOffset > (rect.width*0.4))
+      var speed = moveOffset/(Date.now()-startTime);
+      // console.log("speed >>>", speed);
+      if (moveOffset > (rect.width*0.4) || speed>0.15)
       {
-        var speed = moveOffset/(Date.now()-startTime);
         var newDuration = Math.min((rect.width / speed), dataset.duration);
         // move forward(left)
         if (rect.left-origin.left<0 && dataset.current<dataset.length-1) 
@@ -63,10 +64,27 @@
           event.instance.callMethod('onCurrentChange', { current: current });
         }
       }
+    },
+    currentObserver: function(newValue, oldValue, ownerInstance, instance)
+    {
+      // 这里不做监听的话，因为wxs里面实例的setStyle接口是往里面追加样式而不是替换样式，会导致外部setData更新current但是卡片不会切换
+      var dataset = instance.getDataset();
+      console.log("currentObserver >>>", newValue, oldValue, dataset.length);
+      if (newValue < 0)
+      {
+        newValue = 0;
+      }
+      if (newValue >= dataset.length)
+      {
+        newValue = Math.min(Math.max(dataset.length-1, 0), newValue);
+      }
+      instance.setStyle({
+        left: -newValue*100 + '%'
+      });
     }
   };
 </wxs>
-<!-- style="transform: translateX(-{{ current*100 }}%); transition-property: transform; transition-duration: 0.618s;" -->
+
 <view class="swiper-container">
   <view
     bindtouchstart="{{ wxsTool.handleTouchStart }}"
@@ -76,7 +94,9 @@
     style="left: -{{ current*100 }}%; transition-property: left; transition-duration: {{ 600 }}ms;"
     data-current="{{ current }}"
     data-length="{{ list.length }}"
-    data-duration="{{ duration }}">
+    data-duration="{{ duration }}"
+    current="{{ current }}"
+    change:current="{{ wxsTool.currentObserver }}">
     <view 
       class="item" 
       wx:for="{{ list }}" 
