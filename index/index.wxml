@@ -1,0 +1,87 @@
+<!-- <view class="intro">欢迎使用代码片段，可在控制台查看代码片段的说明和文档</view> -->
+<!-- <swiper current="{{ current }}" bindchange="handleChange">
+  <swiper-item wx:for="{{ list }}" wx:key="index">{{ index }}</swiper-item>
+</swiper> -->
+
+<wxs module="wxsTool">
+  var offset = {
+    left: 0,
+    top: 0
+  };
+  var origin = {
+    left: 0,
+    top: 0
+  };
+  var startTime = 0;
+  module.exports = {
+    handleTouchStart: function(event, ownerInstance) {
+      var touch = event.touches[0];
+      var rect = event.instance.getBoundingClientRect();
+      offset.left = touch.clientX - rect.left;
+      offset.top = touch.clientY - rect.top;
+      origin.left = rect.left;
+      origin.top = rect.top;
+      startTime = Date.now();
+    },
+    handleTouchMove: function(event, ownerInstance) {
+      var touch = event.touches[0];
+      var rect = event.instance.getBoundingClientRect();
+      event.instance.setStyle({
+        "transition-duration": "0s",
+        left: touch.clientX - offset.left + 'px'
+      });
+    },
+    handleTouchEnd: function(event, ownerInstance) {
+      var rect = event.instance.getBoundingClientRect();
+      var dataset = event.instance.getDataset();
+      event.instance.setStyle({
+        "transition-duration": dataset.duration + "ms",
+      });
+      var moveOffset = Math.abs(rect.left-origin.left);
+      if (moveOffset > (rect.width*0.4))
+      {
+        var speed = moveOffset/(Date.now()-startTime);
+        var newDuration = Math.min((rect.width / speed), dataset.duration);
+        // move forward(left)
+        if (rect.left-origin.left<0 && dataset.current<dataset.length-1) 
+        {
+          var current = dataset.current + 1;
+          event.instance.setStyle({
+            left: -current*100 + '%',
+            "transition-duration": newDuration + "ms",
+          });
+          event.instance.callMethod('onCurrentChange', { current: current });
+        }
+        // move back(right)
+        else if (rect.left-origin.left>0 && dataset.current>0)
+        {
+          var current = dataset.current - 1;
+          event.instance.setStyle({
+            left: -current*100 + '%',
+            "transition-duration": newDuration + "ms",
+          });
+          event.instance.callMethod('onCurrentChange', { current: current });
+        }
+      }
+    }
+  };
+</wxs>
+<!-- style="transform: translateX(-{{ current*100 }}%); transition-property: transform; transition-duration: 0.618s;" -->
+<view class="swiper-container">
+  <view
+    bindtouchstart="{{ wxsTool.handleTouchStart }}"
+    bindtouchmove="{{ wxsTool.handleTouchMove }}"
+    bindtouchend="{{ wxsTool.handleTouchEnd }}" 
+    class="swiper-wrapper" 
+    style="left: -{{ current*100 }}%; transition-property: left; transition-duration: {{ 600 }}ms;"
+    data-current="{{ current }}"
+    data-length="{{ list.length }}"
+    data-duration="{{ duration }}">
+    <view 
+      class="item" 
+      wx:for="{{ list }}" 
+      wx:key="index">{{ index }}</view>
+  </view>
+</view>
+<button catchtap="handleLeft">left</button>
+<button catchtap="handleRight">right</button>

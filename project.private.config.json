@@ -1,0 +1,23 @@
+{
+  "condition": {
+    "plugin": {
+      "list": []
+    },
+    "game": {
+      "list": []
+    },
+    "gamePlugin": {
+      "list": []
+    },
+    "miniprogram": {
+      "list": [
+        {
+          "name": "move-test/move-test",
+          "pathName": "move-test/move-test",
+          "query": "",
+          "scene": null
+        }
+      ]
+    }
+  }
+}

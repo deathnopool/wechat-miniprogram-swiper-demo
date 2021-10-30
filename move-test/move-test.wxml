@@ -1,0 +1,38 @@
+<!--move-test/move-test.wxml-->
+<wxs module="wxsTool">
+  var offset = {
+    left: 0,
+    top: 0
+  };
+  module.exports = {
+    handleStart: function(event, ownerInstance)
+    {
+      var touch = event.touches[0];
+      var rect = event.instance.getBoundingClientRect();
+      offset.left = touch.clientX - rect.left;
+      offset.top = touch.clientY -rect.top;
+    },
+    handleMove: function(event, ownerInstance) 
+    {
+      var touch = event.touches[0];
+      // console.log('>>>', JSON.stringify(event.instance.getBoundingClientRect()));
+      var rect = event.instance.getBoundingClientRect();
+      // console.log(">>>", touch.clientY, rect.top);
+      event.instance.setStyle({
+        // transform: 'translate(' + (rect.left - touch.clientX) + 'px, ' + (rect.top - touch.clientY) + 'px )',
+        // top: touch.clientY - offset.top + 'px',
+        left: touch.clientX - offset.left + 'px'
+      });
+    },
+    handleEnd: function(event, ownerInstance)
+    {
+      // console.log("EEEEE");
+    }
+  };
+</wxs>
+<view 
+  class="block" 
+  bindtouchstart="{{ wxsTool.handleStart }}"
+  bindtouchmove="{{ wxsTool.handleMove }}" 
+  bindtouchend="{{ wxsTool.handleEnd }}">
+</view>
